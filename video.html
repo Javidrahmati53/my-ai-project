@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Beyond the Known — AI Reel Studio</title>
+<style>
+:root{color-scheme:dark;--cyan:#76f7ff;--violet:#a18bff}
+*{box-sizing:border-box}body{margin:0;background:#050711;color:#f6f7ff;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px}
+main{width:min(100%,960px);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:28px;align-items:center}
+.stage{width:100%;aspect-ratio:9/16;background:#070a19;border:1px solid #252b4b;border-radius:24px;overflow:hidden;box-shadow:0 25px 100px #0009;position:relative}
+canvas{display:block;width:100%;height:100%}.panel{padding:8px 0}.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:800}h1{font-size:clamp(28px,4vw,48px);line-height:1.02;margin:14px 0}p{color:#b5bdd8;line-height:1.6}.buttons{display:grid;gap:10px;margin-top:24px}button,a.button{border:0;border-radius:12px;padding:14px 16px;font-weight:800;font-size:14px;cursor:pointer;text-align:center;text-decoration:none}button.primary{background:linear-gradient(100deg,#7cf6ff,#a18bff);color:#080b1c}button.secondary{background:#171c31;color:#f6f7ff;border:1px solid #2d3555}button:disabled{opacity:.55;cursor:wait}.note{font-size:12px;color:#7f89aa}.status{min-height:24px;color:var(--cyan);font-size:13px;margin-top:12px}.tag{display:inline-block;border:1px solid #2c3555;border-radius:99px;padding:7px 10px;font-size:11px;color:#bfc8e8;margin:4px 4px 0 0}@media(max-width:700px){main{grid-template-columns:1fr;max-width:460px;gap:18px}.stage{max-height:68vh;width:auto;height:68vh;aspect-ratio:9/16;margin:auto}.panel{padding:0}.panel h1{font-size:34px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="stage"><canvas id="scene" width="540" height="960" aria-label="Animated science and cosmos reel preview"></canvas></div>
+  <section class="panel">
+    <div class="eyebrow">AI Reel Studio · 01</div>
+    <h1>BEYOND<br>THE KNOWN<span style="color:var(--cyan)">.</span></h1>
+    <p>A cinematic, code-generated vertical intro for a channel exploring science, history, artificial intelligence, humanity, war, space and time.</p>
+    <span class="tag">9:16 vertical</span><span class="tag">12 seconds</span><span class="tag">Canvas + Web Audio</span>
+    <div class="buttons">
+      <button class="primary" id="export">▶ Render & download video</button>
+      <button class="secondary" id="replay">↻ Replay preview</button>
+    </div>
+    <div class="status" id="status">Preview running · ready to render</div>
+    <p class="note">Rendering happens in your browser. The export is a WebM video; no Runway or external video service is used. If your device/browser doesn't support recording, use screen recording as a fallback.</p>
+  </section>
+</main>
+<script>
+(() => {
+const canvas=document.querySelector('#scene'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+const status=document.querySelector('#status'),exportBtn=document.querySelector('#export');
+let start=performance.now(),manualStart=start,raf=0,recording=false;
+let seed=92;function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+const stars=Array.from({length:180},()=>({x:rand()*W,y:rand()*H,z:.3+rand()*1.7,r:.5+rand()*1.5,phase:rand()*7}));
+const particles=Array.from({length:70},()=>({a:rand()*Math.PI*2,r:80+rand()*260,s:.15+rand()*.55,size:1+rand()*2}));
+function text(str,x,y,size,color,alpha=1,spacing=2){ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.font='700 '+size+'px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.letterSpacing=spacing+'px';ctx.fillText(str,x,y);ctx.restore()}
+function roundedRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.stroke()}
+function draw(ms){
+ const t=ms/1000,cycle=(t%12)/12;
+ const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#050714');bg.addColorStop(.5,'#101735');bg.addColorStop(1,'#080916');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ // soft nebula glows
+ for(let i=0;i<4;i++){let x=W*(.18+i*.22)+Math.sin(t*.45+i)*38,y=H*(.22+i*.18)+Math.cos(t*.3+i)*35;let g=ctx.createRadialGradient(x,y,2,x,y,220);g.addColorStop(0,i%2?'#6e54ff25':'#31e9ff24');g.addColorStop(1,'#07091600');ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
+ stars.forEach((s,i)=>{let tw=.45+.55*Math.sin(t*1.8+s.phase);ctx.globalAlpha=tw;ctx.fillStyle=i%8===0?'#8cf8ff':'#dfe9ff';ctx.beginPath();ctx.arc((s.x+t*s.z*7)%W,s.y,s.r,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
+ // orbiting particle rings
+ ctx.save();ctx.translate(W/2,H*.39);ctx.rotate(t*.12);
+ for(let k=0;k<3;k++){ctx.strokeStyle=k===1?'#7af4ff66':'#9a8aff45';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,0,100+k*31,37+k*14,t*.25+k*.8,0,Math.PI*2);ctx.stroke()}
+ particles.forEach((p,i)=>{let a=p.a+t*p.s*(i%2?1:-1),x=Math.cos(a)*p.r,y=Math.sin(a)*p.r*.46;ctx.fillStyle=i%3?'#8dfaff':'#b5a3ff';ctx.globalAlpha=.35+.65*Math.sin(a*2)**2;ctx.beginPath();ctx.arc(x,y,p.size,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
+ let pulse=1+Math.sin(t*2)*.025;let rg=ctx.createRadialGradient(0,0,3,0,0,88*pulse);rg.addColorStop(0,'#efffff');rg.addColorStop(.12,'#8af7ff');rg.addColorStop(.35,'#526fff');rg.addColorStop(.72,'#222a69');rg.addColorStop(1,'#090d24');ctx.fillStyle=rg;ctx.beginPath();ctx.arc(0,0,70*pulse,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#b2faff88';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,79*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
+ // fine interface frame
+ ctx.strokeStyle='#83efff45';ctx.lineWidth=1;roundedRect(24,24,W-48,H-48,18);ctx.fillStyle='#9bf7ff';ctx.fillRect(38,44,25,2);ctx.fillRect(W-63,H-46,25,2);
+ text('FIELD NOTES  /  001',W/2,86,11,'#8bf7ff',.85,3);
+ // timed cinematic copy
+ let title,sub;
+ if(cycle<.24){title='THE UNIVERSE';sub='IS BIGGER THAN WE THINK'}
+ else if(cycle<.49){title='TIME';sub='HOLDS STORIES WE FORGOT'}
+ else if(cycle<.74){title='INTELLIGENCE';sub='IS CHANGING THE FUTURE'}
+ else{title='KEEP LOOKING';sub='BEYOND THE KNOWN'}
+ let fade=Math.min(1,cycle*14,(1-cycle)*10);
+ text(title,W/2,H*.64,cycle<.74?26:28,'#f5f7ff',fade,1.7);
+ text(sub,W/2,H*.64+34,10,'#9cefff',fade*.9,1.8);
+ if(cycle>.75){text('SCIENCE  ·  HISTORY  ·  SPACE',W/2,H*.77,10,'#c1c9e8',fade,1.2)}
+ // progress indicator
+ ctx.fillStyle='#273050';ctx.fillRect(50,H-82,W-100,2);ctx.fillStyle='#80f5ff';ctx.fillRect(50,H-82,(W-100)*cycle,2);
+ text('EXPLORE THE UNKNOWN',W/2,H-53,9,'#8996bd',.9,2.5);
+}
+function loop(now){draw(now-manualStart);raf=requestAnimationFrame(loop)}
+function replay(){manualStart=performance.now();cancelAnimationFrame(raf);loop(performance.now());status.textContent='Preview replaying · 12-second loop'}
+document.querySelector('#replay').addEventListener('click',replay);
+function makeTone(audio,frequency,when,duration,gain,type='sine'){const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(frequency,when);g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(gain,when+.08);g.gain.exponentialRampToValueAtTime(.0001,when+duration);o.connect(g);g.connect(audio.destination);o.start(when);o.stop(when+duration+.03)}
+exportBtn.addEventListener('click',async()=>{
+ if(recording)return;
+ if(!canvas.captureStream||!window.MediaRecorder){status.textContent='Recording unsupported here — try Chrome or Edge on desktop.';return}
+ recording=true;exportBtn.disabled=true;status.textContent='Rendering 12-second reel… keep this tab open';
+ let audio;
+ try{
+  const stream=canvas.captureStream(30);let tracks=[...stream.getVideoTracks()];
+  try{audio=new (window.AudioContext||window.webkitAudioContext)();await audio.resume();const dest=audio.createMediaStreamDestination();
+    // Minimal original ambient synth score, no external audio assets
+    const master=audio.createGain();master.gain.value=.18;master.connect(dest);
+    [55,82.41,110].forEach((f,i)=>{const osc=audio.createOscillator(),gain=audio.createGain();osc.type=i===1?'triangle':'sine';osc.frequency.value=f;gain.gain.value=.10/(i+1);osc.connect(gain);gain.connect(master);osc.start()});
+    [0,2.8,5.6,8.4].forEach((s,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=[440,523.25,659.25,587.33][i];g.gain.value=.0001;o.connect(g);g.connect(master);o.start(audio.currentTime+s);g.gain.setValueAtTime(.0001,audio.currentTime+s);g.gain.linearRampToValueAtTime(.12,audio.currentTime+s+.5);g.gain.linearRampToValueAtTime(.0001,audio.currentTime+s+1.4);o.stop(audio.currentTime+s+1.5)});
+    tracks.push(...dest.stream.getAudioTracks());
+  }catch(e){console.warn('Audio unavailable, continuing silently',e)}
+  const combined=new MediaStream(tracks);const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(x=>MediaRecorder.isTypeSupported(x));const recorder=new MediaRecorder(combined,mime?{mimeType:mime,videoBitsPerSecond:4500000}:undefined);const chunks=[];
+  recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  recorder.onerror=()=>{status.textContent='Render failed in this browser. Try Chrome or Edge.';recording=false;exportBtn.disabled=false};
+  recorder.onstop=()=>{const blob=new Blob(chunks,{type:recorder.mimeType||'video/webm'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='beyond-the-known-reel.webm';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);combined.getTracks().forEach(t=>t.stop());if(audio)audio.close();status.textContent='Done — video downloaded ('+(blob.size/1024/1024).toFixed(1)+' MB).';recording=false;exportBtn.disabled=false};
+  manualStart=performance.now();draw(0);recorder.start();const t0=performance.now();
+  function capture(){const elapsed=performance.now()-t0;draw(elapsed);if(elapsed>=12000){recorder.stop();return}requestAnimationFrame(capture)}requestAnimationFrame(capture);
+ }catch(err){console.error(err);status.textContent='Could not render. Try Chrome/Edge and tap again.';recording=false;exportBtn.disabled=false;if(audio)audio.close()}
+});
+replay();
+})();
+</script>
+</body></html>
