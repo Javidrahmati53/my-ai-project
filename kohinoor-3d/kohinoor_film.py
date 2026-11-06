@@ -109,7 +109,7 @@ def room_mughal():
 
 def scene_setup(idx):
     clear()
-    sc=bpy.context.scene; sc.render.engine='CYCLES'; sc.cycles.samples=SAMPLES
+    sc=bpy.context.scene; sc.render.engine='CYCLES'; sc.cycles.samples=SAMPLES; sc.cycles.use_denoising=False
     sc.render.resolution_x=W; sc.render.resolution_y=H; sc.render.resolution_percentage=100
     sc.render.fps=FPS; sc.frame_start=1; sc.frame_end=6*FPS
     sc.render.image_settings.file_format='PNG'; sc.render.film_transparent=False
