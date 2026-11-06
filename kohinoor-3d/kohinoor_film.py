@@ -3,7 +3,7 @@ from mathutils import Vector
 
 # Koh-i-Noor — procedural 3D short
 # Blender 4.2+ | FFmpeg required
-QUALITY = "FINAL"  # PREVIEW or FINAL
+QUALITY = os.environ.get("KOHINOOR_QUALITY", "PREVIEW").upper()  # PREVIEW or FINAL
 FPS = 24
 W, H = (1080, 1920) if QUALITY == "FINAL" else (540, 960)
 SAMPLES = 48 if QUALITY == "FINAL" else 12
@@ -68,18 +68,16 @@ def camera(loc, target=(0,0,0), lens=52):
 
 def diamond(loc=(0,0,0), scale=1):
     # Procedural brilliant-like faceted stone with crown, girdle and pavilion.
-    verts=[]; rings=[(1.05,-.12,16),(.78,.42,16),(.48,.58,16),(.0,.68,1),(.82,-.20,16),(.55,-.72,16),(.0,-1.18,1)]
+    verts=[]; rings=[(1.05,-.12,16),(.78,.42,16),(.48,.58,16),(.22,.63,16),(.82,-.20,16),(.55,-.72,16),(.0,-1.18,1)]
     for r,z,n in rings:
         if n==1: verts.append((0,0,z)); continue
         for i in range(n):
             a=2*math.pi*i/n + (math.pi/16 if len(verts)>0 else 0)
             verts.append((r*math.cos(a),r*math.sin(a),z))
-    faces=[]; offsets=[0,16,32,48,49,65,81]
+    faces=[]; offsets=[0,16,32,48,64,80,96]
     for ri in range(6):
         n=16
-        if ri==2:
-            for i in range(n): faces.append((offsets[ri]+i,offsets[ri]+(i+1)%n,offsets[ri+1]))
-        elif ri==5:
+        if ri==5:
             for i in range(n): faces.append((offsets[ri]+i,offsets[ri]+(i+1)%n,offsets[ri+1]))
         else:
             for i in range(n):
