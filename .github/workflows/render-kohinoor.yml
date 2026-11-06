@@ -1,0 +1,43 @@
+name: Render Koh-i-Noor film
+
+on:
+  workflow_dispatch:
+    inputs:
+      quality:
+        description: Render quality
+        required: true
+        type: choice
+        options:
+          - PREVIEW
+          - FINAL
+        default: PREVIEW
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Install Blender and FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender ffmpeg
+
+      - name: Render all five scenes
+        env:
+          KOHINOOR_QUALITY: ${{ inputs.quality }}
+        run: |
+          blender --background --python kohinoor-3d/kohinoor_film.py
+
+      - name: Upload finished MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: kohinoor-30s-${{ inputs.quality }}
+          path: kohinoor-3d/kohinoor_30s.mp4
+          if-no-files-found: error
+          retention-days: 14
