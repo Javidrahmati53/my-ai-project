@@ -1,26 +1,35 @@
-# PONEIX | SELF — Android-friendly Bot API version
+# PONEIX | SELF — Personal Telegram Assistant v1.0
 
-This project is a simple Telegram bot using Python's standard library only.
-No Termux, pip installs, Rust, or native compilation are required to run it
-on a regular Python host.
+A Persian-language Telegram bot built with Python's standard library. No pip packages are required.
 
-## Commands
-- /start or /help — help
-- /time — local time
-- /me — Telegram user details
-- /calc 2+3*4 — safe calculator (limited operators)
-- /format text — echo text
+## Features and commands
 
-## Run on a Python host
-Set environment variables:
-- BOT_TOKEN: token from BotFather (keep secret; do not commit it)
-- TIMEZONE: default Asia/Baku
+- `/start`, `/help` — welcome and command guide
+- `/time` — date and time in the configured timezone (default: Asia/Baku)
+- `/me`, `/id` — Telegram profile and chat identifiers
+- `/calc 25*4` — safe arithmetic calculator
+- `/upper text`, `/lower text`, `/reverse text`, `/count text`, `/format text` — text utilities
+- `/random 1 100` — random number
+- `/note text`, `/notes`, `/delnote 1` — notes
+- `/todo text`, `/todos`, `/done 1`, `/deltodo 1` — task list
+- `/remind 10m text`, `/reminders`, `/delremind 1` — reminders (s/m/h/d)
 
-Then run:
-`python main.py`
+## Run
 
-For cloud hosting, create a worker/background service with the start command
-`python main.py` and add BOT_TOKEN as a private environment variable.
-Do not put a real bot token in this public repository.
+Python 3.12+:
 
-This is a minimal Bot API bot; it cannot act as your personal Telegram account.
+```bash
+python main.py
+```
+
+Set `BOT_TOKEN` as an environment variable. Set `TIMEZONE` optionally; default is `Asia/Baku`.
+
+## GitHub Actions
+
+The workflow in `.github/workflows/poneix.yml` starts the bot manually or on a six-hour schedule. Add a repository Actions secret named `BOT_TOKEN` containing the Telegram bot token.
+
+GitHub-hosted runners are temporary and a job is time-limited. Local SQLite notes, tasks, and reminders are stored on the runner and can be lost when that runner stops; this setup is a free test deployment, not permanent 24/7 hosting. For durable storage and continuous uptime, use a persistent host and persistent database.
+
+## Scope
+
+This is a Telegram bot, not an automation of a personal Telegram user account. It responds to commands sent to the bot.
