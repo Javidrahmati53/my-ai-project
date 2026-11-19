@@ -46,11 +46,11 @@ def handle(message):
     command = command.split("@", 1)[0].lower()
     argument = argument.strip()
     if command in ("/start", "/help"):
-        send(chat_id, "PONEIX | SELF\\nCommands: /time, /me, /calc <expression>, /format <text>")
+        send(chat_id, "PONEIX | SELF\nCommands: /time, /me, /calc <expression>, /format <text>")
     elif command == "/time":
         send(chat_id, datetime.now(ZoneInfo(TZ)).strftime("%Y-%m-%d %H:%M:%S") + " (" + TZ + ")")
     elif command == "/me":
-        send(chat_id, f"ID: {user.get('id')}\\nName: {user.get('first_name','')}\\nUsername: @{user.get('username','none')}")
+        send(chat_id, f"ID: {user.get('id')}\nName: {user.get('first_name','')}\nUsername: @{user.get('username','none')}")
     elif command == "/calc":
         try: send(chat_id, str(safe_calc(argument)))
         except Exception: send(chat_id, "Invalid expression. Example: /calc 2+3*4")
