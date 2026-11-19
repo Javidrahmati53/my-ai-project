@@ -2,7 +2,7 @@ import json, time, urllib.request, urllib.parse, ast, operator
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-TOKEN = "PASTE_BOT_TOKEN_HERE"
+TOKEN = "9208804475:AAFHV_OFf09ATuv8o15qt8fMRHpIbxQauc0"
 TZ = "Asia/Baku"
 if not TOKEN or TOKEN == "PASTE_BOT_TOKEN_HERE":
     raise SystemExit("Paste your bot token into TOKEN at the top of this file.")
