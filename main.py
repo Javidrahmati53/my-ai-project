@@ -32,7 +32,7 @@ def safe_calc(expression):
             return val if isinstance(node.op, ast.UAdd) else -val
         if isinstance(node, ast.BinOp) and type(node.op) in ops:
             left, right = visit(node.left), visit(node.right)
-            if isinstance(node.op, ast.Pow) and abs(right) > 8: raise Value ValueError("exponent limit")
+            if isinstance(node.op, ast.Pow) and abs(right) > 8: raise ValueError("exponent limit")
             return ops[type(node.op)](left, right)
         raise ValueError("unsupported expression")
     return visit(ast.parse(expression, mode="eval"))
