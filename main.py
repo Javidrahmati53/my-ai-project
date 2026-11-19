@@ -1,11 +1,11 @@
-import os, json, time, urllib.request, urllib.parse, ast, operator
+import json, time, urllib.request, urllib.parse, ast, operator
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-TOKEN = os.getenv("BOT_TOKEN", "").strip()
-TZ = os.getenv("TIMEZONE", "Asia/Baku")
-if not TOKEN:
-    raise SystemExit("Set BOT_TOKEN in your hosting environment.")
+TOKEN = "PASTE_BOT_TOKEN_HERE"
+TZ = "Asia/Baku"
+if not TOKEN or TOKEN == "PASTE_BOT_TOKEN_HERE":
+    raise SystemExit("Paste your bot token into TOKEN at the top of this file.")
 
 API = "https://api.telegram.org/bot" + TOKEN + "/"
 
@@ -32,7 +32,7 @@ def safe_calc(expression):
             return val if isinstance(node.op, ast.UAdd) else -val
         if isinstance(node, ast.BinOp) and type(node.op) in ops:
             left, right = visit(node.left), visit(node.right)
-            if isinstance(node.op, ast.Pow) and abs(right) > 8: raise ValueError("exponent limit")
+            if isinstance(node.op, ast.Pow) and abs(right) > 8: raise Value ValueError("exponent limit")
             return ops[type(node.op)](left, right)
         raise ValueError("unsupported expression")
     return visit(ast.parse(expression, mode="eval"))
@@ -46,11 +46,11 @@ def handle(message):
     command = command.split("@", 1)[0].lower()
     argument = argument.strip()
     if command in ("/start", "/help"):
-        send(chat_id, "PONEIX | SELF\nCommands: /time, /me, /calc <expression>, /format <text>")
+        send(chat_id, "PONEIX | SELF\\nCommands: /time, /me, /calc <expression>, /format <text>")
     elif command == "/time":
         send(chat_id, datetime.now(ZoneInfo(TZ)).strftime("%Y-%m-%d %H:%M:%S") + " (" + TZ + ")")
     elif command == "/me":
-        send(chat_id, f"ID: {user.get('id')}\nName: {user.get('first_name','')}\nUsername: @{user.get('username','none')}")
+        send(chat_id, f"ID: {user.get('id')}\\nName: {user.get('first_name','')}\\nUsername: @{user.get('username','none')}")
     elif command == "/calc":
         try: send(chat_id, str(safe_calc(argument)))
         except Exception: send(chat_id, "Invalid expression. Example: /calc 2+3*4")
